@@ -21,8 +21,12 @@ exports.getProductById = (req, res) =>  {
 }
 
 exports.createProduct = (req, res) => {
+    const id = products.length + 1;
+    
+    const maxId = products.length > 0 ? Math.max(...products.map(product => product.id)) : 0;
+
     const newProduct = { 
-        id: products.length + 1, 
+        id: maxId + 1, 
         name: req.body.name, 
         price: req.body.price 
     }
@@ -55,9 +59,16 @@ exports.deleteProduct = (req, res) => {
         return res.status(400).json({ message: 'Invalid product id' });
     }
 
-    const productId = products.findIndex(product => product.id === parsedId)
-    products = products.filter(id => id !== productId)
+    const productIndex = products.findIndex(product => product.id === parsedId)
+    
+    if (productIndex === -1) {
+        return res.status(404).json({ message: 'Product not found' });
+    }
 
-    res.status(204).json(products)
+    console.log(`${productIndex} ${parsedId}`)
+
+    products = products.filter(el => el.id !== parsedId)
+
+    res.status(204).send(products)
 }
 
